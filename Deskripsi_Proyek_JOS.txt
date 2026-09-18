@@ -1,0 +1,47 @@
+====================================================================
+PROPOSAL DESKRIPSI PROYEK
+JOS (Job Opportunity Sumenep)
+Platform Agregator Lowongan Pekerjaan Publik Terpusat
+====================================================================
+
+1. LATAR BELAKANG
+Dalam era digital saat ini, informasi lowongan pekerjaan tersebar di berbagai platform (seperti Glints, JobStreet, Pintarnya, KitaLulus) dan situs resmi pemerintah (seperti Disnaker). Tersebarnya informasi ini seringkali membuat para pencari kerja, khususnya di daerah Kabupaten Sumenep dan Madura Raya, kesulitan untuk menemukan pekerjaan yang relevan, tervalidasi, dan terpusat. Untuk mengatasi masalah fragmentasi informasi tersebut, dibutuhkan sebuah sistem yang dapat mengumpulkan dan menyaring lowongan pekerjaan yang spesifik untuk area lokal.
+
+2. NAMA & KONSEP PROYEK
+Nama Proyek: JOS (Job Opportunity Sumenep)
+Konsep: JOS adalah sebuah platform web agregator yang berfungsi untuk mengumpulkan (scraping) informasi lowongan pekerjaan dari berbagai sumber publik di internet dan menyajikannya dalam satu portal terpusat yang mudah diakses. Platform ini dirancang secara spesifik untuk memfasilitasi kebutuhan tenaga kerja di wilayah Kabupaten Sumenep dan Madura Raya. JOS bukanlah sebuah marketplace, melainkan mesin pencari dan pengumpul data yang selalu mengarahkan pelamar ke halaman sumber resmi.
+
+3. TUJUAN PROYEK
+- Mempermudah pencari kerja di Sumenep untuk menemukan lowongan yang sesuai tanpa perlu mengunjungi puluhan situs web yang berbeda.
+- Menyediakan rekomendasi pekerjaan berbasis algoritma "Rule-Based Matching" yang mencocokkan keterampilan (skills), pengalaman, dan profil pencari kerja.
+- Mewujudkan ekosistem digital tenaga kerja yang transparan, gratis (tanpa perantara), dan terintegrasi dengan berbagai platform bursa kerja nasional maupun daerah.
+
+4. FITUR UTAMA
+a. Automated Web Scraper (Sub-sistem Python)
+   Sistem bot otomatis yang secara berkala menarik data (scraping) dari berbagai sumber lowongan kerja besar (Glints, JobStreet, KitaLulus, Pintarnya) dan sumber pemerintah (Disnaker), lalu membersihkan dan menyimpan datanya ke dalam database lokal.
+b. Smart Job Matching
+   Sistem rekomendasi yang mencocokkan lowongan dengan profil pencari kerja (pendidikan, umur, pengalaman, dan keahlian spesifik) secara otomatis.
+c. Dashboard Pencari Kerja (User Panel)
+   Panel di mana pencari kerja dapat mengatur profil lengkap, menyimpan lowongan favorit (saved jobs), dan mengelola keahlian mereka.
+d. Dashboard Administrator
+   Panel khusus admin untuk memonitor statistik lapangan kerja, mengelola daftar sumber scraping (Scraping Sources), mengeksekusi sinkronisasi data secara manual, dan memantau log aktivitas sistem.
+
+5. TEKNOLOGI YANG DIGUNAKAN
+- Frontend: HTML5, CSS3, TailwindCSS (beserta Alpine.js) untuk menghasilkan antarmuka yang modern, dinamis, dan responsif (Mobile Friendly).
+- Backend (Web & API): PHP dengan framework Laravel.
+- Backend (Scraper): Python (BeautifulSoup, Requests) yang diintegrasikan langsung dengan database Laravel.
+- Database: MySQL / MariaDB.
+
+6. TARGET PENGGUNA
+- Masyarakat umum dan angkatan kerja (fresh graduate maupun profesional) yang berdomisili di Kabupaten Sumenep dan Madura Raya.
+- Pemerintah Daerah / Dinas terkait (sebagai alat pantau ketersediaan lapangan kerja lokal).
+
+7. NILAI TAMBAH (VALUE PROPOSITION)
+- Localized: Fungsionalitas pencarian sangat dioptimalkan untuk geografi Madura, mencakup 27 kecamatan di Sumenep (Daratan & Kepulauan).
+- Real-time & Otomatis: Data selalu diperbarui oleh bot scraper (Python) sehingga meminimalisir lowongan kedaluwarsa.
+- User Experience (UX) Premium: Dirancang dengan desain elegan, cepat, ringan, dan bebas dari animasi yang mengganggu, sehingga sangat nyaman digunakan di segala perangkat.
+
+====================================================================
+Dibuat untuk memajukan kesejahteraan dan penyerapan tenaga kerja
+di Kabupaten Sumenep.
+====================================================================
