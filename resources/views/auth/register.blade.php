@@ -6,9 +6,7 @@
 @section('content')
 <div class="min-h-[85vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-700 text-white font-extrabold text-2xl shadow-lg shadow-blue-600/30 mb-4">
-            J
-        </div>
+        <img src="{{ asset('assets/images/logo.png') }}" alt="JOS Logo" class="mx-auto h-14 w-auto object-contain mb-4">
         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Daftar Pencari Kerja
         </h2>

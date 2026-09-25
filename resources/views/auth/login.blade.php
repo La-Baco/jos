@@ -6,9 +6,7 @@
 @section('content')
 <div class="min-h-[80vh] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-700 text-white font-extrabold text-2xl shadow-lg shadow-blue-600/30 mb-4">
-            J
-        </div>
+        <img src="{{ asset('assets/images/logo.png') }}" alt="JOS Logo" class="mx-auto h-14 w-auto object-contain mb-4">
         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Masuk ke Akun JOS
         </h2>
@@ -72,23 +70,7 @@
                 </div>
             </form>
 
-            <div class="mt-6 border-t border-slate-100 pt-5">
-                <div class="text-xs text-slate-500 bg-slate-50 p-3.5 rounded-xl border border-slate-200/70">
-                    <div class="font-semibold text-slate-700 mb-1">Akun Demo Coba Cepat:</div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div>
-                            <span class="text-blue-700 font-semibold block">Admin:</span>
-                            <span class="text-[11px] block">admin@jos.test</span>
-                            <span class="text-[11px] text-slate-600">pass: password123</span>
-                        </div>
-                        <div>
-                            <span class="text-emerald-700 font-semibold block">Pencari Kerja:</span>
-                            <span class="text-[11px] block">user@jos.test</span>
-                            <span class="text-[11px] text-slate-600">pass: password123</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>

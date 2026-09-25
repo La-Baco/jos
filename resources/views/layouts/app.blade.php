@@ -43,9 +43,7 @@
                 <!-- Logo & Brand -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-900 to-blue-600 flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-blue-600/20 group-hover:scale-105 transition-transform">
-                            J
-                        </div>
+                        <img src="{{ asset('assets/images/logo.png') }}" alt="JOS Logo" class="h-10 w-auto object-contain group-hover:scale-105 transition-transform">
                         <div>
                             <div class="flex items-center space-x-1.5">
                                 <span class="text-xl font-bold tracking-tight text-slate-900">JOS</span>

@@ -29,7 +29,7 @@
                     <div class="flex flex-col flex-1 bg-slate-900 pt-5 pb-4 px-4 overflow-y-auto">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg">J</div>
+                                <img src="{{ asset('assets/images/logo.png') }}" alt="JOS Logo" class="h-8 w-auto object-contain">
                                 <span class="text-lg font-bold text-white">JOS Admin</span>
                             </div>
                             <button @click="sidebarOpen = false" class="text-slate-400 hover:text-white">
@@ -48,9 +48,7 @@
         <aside class="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-slate-900 border-r border-slate-800">
             <div class="flex items-center h-16 px-6 bg-slate-950 border-b border-slate-800/80 justify-between">
                 <div class="flex items-center space-x-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-blue-500/20">
-                        J
-                    </div>
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="JOS Logo" class="h-9 w-auto object-contain">
                     <div>
                         <div class="text-base font-bold text-white tracking-tight">JOS Admin</div>
                         <div class="text-[10px] text-blue-400 font-medium">Kabupaten Sumenep</div>
