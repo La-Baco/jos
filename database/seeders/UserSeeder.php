@@ -35,9 +35,9 @@ class UserSeeder extends Seeder
         $s1Level = EducationLevel::where('code', 'S1')->first();
         $d3Level = EducationLevel::where('code', 'D3')->first();
 
-        $adminCat = JobCategory::where('slug', 'administrasi-perkantoran')->first();
-        $itCat = JobCategory::where('slug', 'it-komputer')->first();
-        $salesCat = JobCategory::where('slug', 'marketing-penjualan')->first();
+        $adminCat = JobCategory::where('slug', 'staf-administrasi-keuangan')->first();
+        $itCat = JobCategory::where('slug', 'teknik-it-industri-lokal')->first();
+        $salesCat = JobCategory::where('slug', 'layanan-pelanggan-sales')->first();
 
         $user1 = User::updateOrCreate(
             ['email' => 'user@jos.test'],

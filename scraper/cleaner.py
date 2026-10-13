@@ -28,7 +28,21 @@ class Cleaner:
         if not text:
             return None, None, None
 
-        cleaned = str(text).replace('.', '').replace(',', '')
+        raw_str = str(text).strip()
+        lower_str = raw_str.lower()
+
+        # 1. Check for "juta" / "jt" shorthand (e.g., 2.5 jt - 3.5 juta)
+        juta_matches = re.findall(r'(\d+(?:[.,]\d+)?)\s*(?:jt|juta)', lower_str)
+        if len(juta_matches) >= 2:
+            val1 = float(juta_matches[0].replace(',', '.')) * 1_000_000
+            val2 = float(juta_matches[1].replace(',', '.')) * 1_000_000
+            return min(val1, val2), max(val1, val2), raw_str
+        elif len(juta_matches) == 1:
+            val1 = float(juta_matches[0].replace(',', '.')) * 1_000_000
+            return val1, None, raw_str
+
+        # 2. Check for standard numeric digits (e.g., Rp 2.500.000 - Rp 3.500.000)
+        cleaned = raw_str.replace('.', '').replace(',', '')
         numbers = re.findall(r'\d{6,8}', cleaned)
 
         if len(numbers) >= 2:
@@ -36,12 +50,16 @@ class Cleaner:
             s_max = float(numbers[1])
             if s_min > s_max:
                 s_min, s_max = s_max, s_min
-            return s_min, s_max, text.strip()
+            return s_min, s_max, raw_str
         elif len(numbers) == 1:
             s_min = float(numbers[0])
-            return s_min, None, text.strip()
+            return s_min, None, raw_str
 
-        return None, None, text.strip() if text else None
+        # 3. Detect UMK / UMR Sumenep reference (UMK Sumenep ~ Rp 2.350.000)
+        if 'umk' in lower_str or 'umr' in lower_str:
+            return 2350000.0, None, raw_str
+
+        return None, None, raw_str if raw_str else None
 
     @staticmethod
     def parse_date(date_str):

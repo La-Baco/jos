@@ -72,9 +72,9 @@
                 Pendidikan: Syarat Lowongan vs Latar Belakang Pelamar
             </h3>
             <div class="space-y-4 text-xs">
-                @foreach($jobsByEducation as $index => $edu)
+                @foreach($jobsByEducation as $edu)
                     @php
-                        $seekerCount = $seekersByEducation[$index]->seekers_count ?? 0;
+                        $seekerCount = $seekersByEducation[$edu->id]->seekers_count ?? 0;
                     @endphp
                     <div>
                         <div class="flex items-center justify-between mb-1">

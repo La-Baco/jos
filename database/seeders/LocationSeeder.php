@@ -47,6 +47,7 @@ class LocationSeeder extends Seeder
         // 27 Kecamatan di Kabupaten Sumenep
         $kecamatanSumenep = [
             'Kota Sumenep',
+            'Batuan',
             'Kalianget',
             'Talango',
             'Saronggi',

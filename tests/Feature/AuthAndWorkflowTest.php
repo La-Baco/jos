@@ -86,4 +86,26 @@ class AuthAndWorkflowTest extends TestCase
         $response->assertStatus(200);
         $response->assertSeeText('Rekomendasi Lowongan Untuk Anda');
     }
+
+    public function test_job_original_url_always_resolves_to_valid_live_portal(): void
+    {
+        $jobs = Job::all();
+        $this->assertNotEmpty($jobs);
+
+        foreach ($jobs as $job) {
+            $url = $job->original_url;
+            $this->assertNotEmpty($url);
+            $this->assertStringStartsWith('http', $url);
+            $this->assertStringNotContainsString('disnaker.sumenepkab.go.id', $url);
+            $this->assertStringNotContainsString('lokermadura.id', $url);
+            $this->assertStringNotContainsString('infokerja.jatimprov.go.id', $url);
+        }
+
+        // Test fallback for dummy or broken URLs
+        $dummyJob = new Job(['original_url' => 'https://www.kitalulus.com/lowongan/in-kabupaten-sumenep/staf-toko']);
+        $this->assertEquals('https://www.kitalulus.com/lowongan/kota/kabupaten-sumenep', $dummyJob->original_url);
+
+        $emptyJob = new Job(['original_url' => '']);
+        $this->assertEquals('https://sumenepkab.go.id/berita', $emptyJob->original_url);
+    }
 }

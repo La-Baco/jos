@@ -105,9 +105,7 @@ class JobManagementController extends Controller
 
         $job->update($validated);
 
-        if ($request->has('skills')) {
-            $job->skills()->sync($request->input('skills', []));
-        }
+        $job->skills()->sync($request->input('skills', []));
 
         return redirect()->route('admin.jobs.index')
             ->with('success', "Data lowongan '{$job->title}' berhasil diperbarui oleh Administrator.");

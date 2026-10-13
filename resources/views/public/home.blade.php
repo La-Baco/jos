@@ -95,6 +95,17 @@
             Temukan Lowongan
         </button>
     </form>
+
+    <!-- Quick Keywords -->
+    <div class="mt-3 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-slate-500 px-1">
+        <span class="font-bold text-slate-700 text-[11px] uppercase tracking-wider mr-1">Populer:</span>
+        <a href="{{ route('jobs.index', ['q' => 'Administrasi']) }}" class="px-2.5 py-1 rounded-lg bg-white/90 border border-slate-200 hover:border-blue-500 hover:text-blue-700 font-semibold transition-colors shadow-2xs">Administrasi</a>
+        <a href="{{ route('jobs.index', ['q' => 'Kasir']) }}" class="px-2.5 py-1 rounded-lg bg-white/90 border border-slate-200 hover:border-blue-500 hover:text-blue-700 font-semibold transition-colors shadow-2xs">Kasir & Toko</a>
+        <a href="{{ route('jobs.index', ['q' => 'Sales']) }}" class="px-2.5 py-1 rounded-lg bg-white/90 border border-slate-200 hover:border-blue-500 hover:text-blue-700 font-semibold transition-colors shadow-2xs">Sales & Pemasaran</a>
+        <a href="{{ route('jobs.index', ['location' => 'sumenep']) }}" class="px-2.5 py-1 rounded-lg bg-white/90 border border-slate-200 hover:border-blue-500 hover:text-blue-700 font-semibold transition-colors shadow-2xs">📍 Khusus Sumenep</a>
+        <a href="{{ route('jobs.index', ['experience' => 'fresh']) }}" class="px-2.5 py-1 rounded-lg bg-white/90 border border-slate-200 hover:border-blue-500 hover:text-blue-700 font-semibold transition-colors shadow-2xs">🌱 Fresh Graduate</a>
+        <a href="{{ route('jobs.index', ['remote' => 1]) }}" class="px-2.5 py-1 rounded-lg bg-white/90 border border-slate-200 hover:border-blue-500 hover:text-blue-700 font-semibold transition-colors shadow-2xs">💻 Remote (WFH)</a>
+    </div>
 </section>
 
 <!-- Section: Bagaimana JOS Bekerja? -->

@@ -20,7 +20,7 @@
     </style>
     @stack('styles')
 </head>
-<body class="flex flex-col min-h-screen text-slate-800 antialiased" x-data="{ mobileMenuOpen: false }">
+<body class="flex flex-col min-h-screen text-slate-800 antialiased pb-16 md:pb-0" x-data="{ mobileMenuOpen: false }">
     <!-- Top Bar / Announcement -->
     <div class="bg-slate-900 text-slate-300 text-xs py-2 px-4 border-b border-slate-800">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
@@ -318,6 +318,51 @@
             </div>
         </div>
     </footer>
+
+    <!-- Mobile Bottom Navigation Bar (Sangat ramah pengguna smartphone pencari kerja) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-2xl px-2 py-1 flex items-center justify-around">
+        <a href="{{ route('home') }}" class="flex flex-col items-center py-1 px-2 text-[10px] font-semibold {{ request()->routeIs('home') ? 'text-blue-700' : 'text-slate-500 hover:text-slate-900' }}">
+            <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <span>Beranda</span>
+        </a>
+        <a href="{{ route('jobs.index') }}" class="flex flex-col items-center py-1 px-2 text-[10px] font-semibold {{ request()->routeIs('jobs.*') ? 'text-blue-700' : 'text-slate-500 hover:text-slate-900' }}">
+            <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            <span>Lowongan</span>
+        </a>
+        @auth
+            @if(auth()->user()->isJobSeeker())
+                <a href="{{ route('user.recommendations') }}" class="flex flex-col items-center py-1 px-2 text-[10px] font-semibold relative {{ request()->routeIs('user.recommendations') ? 'text-blue-700' : 'text-slate-500 hover:text-slate-900' }}">
+                    <span class="relative">
+                        <svg class="w-5 h-5 mb-0.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-1 ring-white"></span>
+                    </span>
+                    <span>Cocok</span>
+                </a>
+                <a href="{{ route('user.saved-jobs') }}" class="flex flex-col items-center py-1 px-2 text-[10px] font-semibold {{ request()->routeIs('user.saved-jobs') ? 'text-blue-700' : 'text-slate-500 hover:text-slate-900' }}">
+                    <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                    <span>Simpan</span>
+                </a>
+                <a href="{{ route('user.dashboard') }}" class="flex flex-col items-center py-1 px-2 text-[10px] font-semibold {{ request()->routeIs('user.dashboard') || request()->routeIs('user.profile.*') ? 'text-blue-700' : 'text-slate-500 hover:text-slate-900' }}">
+                    <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span>Akun</span>
+                </a>
+            @else
+                <a href="{{ route('admin.dashboard') }}" class="flex flex-col items-center py-1 px-2 text-[10px] font-semibold text-purple-700">
+                    <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    <span>Admin</span>
+                </a>
+            @endif
+        @else
+            <a href="{{ route('login') }}" class="flex flex-col items-center py-1 px-2 text-[10px] font-semibold text-slate-500 hover:text-blue-700">
+                <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                <span>Masuk</span>
+            </a>
+            <a href="{{ route('register') }}" class="flex flex-col items-center py-1 px-2 text-[10px] font-bold text-blue-700">
+                <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                <span>Daftar</span>
+            </a>
+        @endauth
+    </nav>
 
     @stack('scripts')
 </body>

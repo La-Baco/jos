@@ -101,27 +101,44 @@ def run_scraper(target_source="all"):
 
                 # 3. Normalization
                 regency, district, is_remote = normalizer.normalize_location(clean_loc)
-                cat_id = normalizer.normalize_category(clean_title, clean_desc)
+                cat_id = normalizer.normalize_category(clean_title, clean_desc, raw.get('category'))
                 edu_id = normalizer.normalize_education(raw.get('education_requirement', ''))
+                emp_type = normalizer.normalize_employment_type(raw.get('employment_type'), f"{clean_title} {clean_desc}")
 
-                # Parse experience
+                # Parse experience (support fresh graduate / minimal tahun)
                 exp_req = str(raw.get('experience_requirement', ''))
+                combined_text_for_exp = f"{exp_req} {clean_req} {clean_desc}".lower()
                 min_exp_years = 0
                 import re
-                exp_match = re.search(r'(\d+)\s*tahun', exp_req.lower())
-                if exp_match:
-                    min_exp_years = int(exp_match.group(1))
+                if any(w in combined_text_for_exp for w in ['fresh graduate', 'tanpa pengalaman', 'pemula', 'lulusan baru']):
+                    min_exp_years = 0
+                else:
+                    exp_match = re.search(r'(\d+)\s*(?:-|s/d)?\s*(?:\d+)?\s*tahun', exp_req.lower())
+                    if exp_match:
+                        min_exp_years = int(exp_match.group(1))
 
-                # Parse age
+                # Parse age (support range or max limit)
                 age_req = str(raw.get('age_requirement', ''))
+                combined_text_for_age = f"{age_req} {clean_req}".lower()
                 min_age = None
                 max_age = None
-                age_match = re.findall(r'\d{2}', age_req)
-                if len(age_match) >= 2:
-                    min_age = int(age_match[0])
-                    max_age = int(age_match[1])
-                elif len(age_match) == 1:
-                    max_age = int(age_match[0])
+                
+                # Check for range: e.g. 18-28 tahun
+                range_match = re.search(r'(\d{2})\s*(?:-|s/d|sampai)\s*(\d{2})', combined_text_for_age)
+                if range_match:
+                    min_age = int(range_match.group(1))
+                    max_age = int(range_match.group(2))
+                else:
+                    # Check for max limit: e.g. maksimal 30 tahun
+                    max_match = re.search(r'(?:maksimal|maks|max)\.?\s*(\d{2})', combined_text_for_age)
+                    if max_match:
+                        min_age = 18
+                        max_age = int(max_match.group(1))
+                    else:
+                        # Check for min limit: e.g. minimal 21 tahun
+                        min_match = re.search(r'(?:minimal|min)\.?\s*(\d{2})', combined_text_for_age)
+                        if min_match:
+                            min_age = int(min_match.group(1))
 
                 # Match skills to master skill IDs
                 combined_skills_text = f"{raw.get('skills', '')} {clean_req} {clean_desc}"
@@ -140,7 +157,7 @@ def run_scraper(target_source="all"):
                     'normalized_district': district,
                     'is_remote': is_remote,
                     'job_category_id': cat_id,
-                    'employment_type': raw.get('employment_type', 'Full-time'),
+                    'employment_type': emp_type,
                     'education_level_id': edu_id,
                     'min_experience_years': min_exp_years,
                     'min_age': min_age,

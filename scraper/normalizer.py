@@ -1,13 +1,32 @@
 import re
 
 class Normalizer:
+    # 27 Kecamatan resmi di Kabupaten Sumenep (18 Daratan + 9 Kepulauan)
     SUMENEP_DISTRICTS = [
-        'Kota Sumenep', 'Kalianget', 'Talango', 'Saronggi', 'Bluto',
+        'Kota Sumenep', 'Batuan', 'Kalianget', 'Talango', 'Saronggi', 'Bluto',
         'Pragaan', 'Lenteng', 'Ganding', 'Guluk-Guluk', 'Rubaru',
         'Ambunten', 'Pasongsongan', 'Dasuk', 'Manding', 'Batuputih',
         'Dungkek', 'Gapura', 'Batang-Batang', 'Giligenting', 'Gayam',
         'Nonggunong', 'Raas', 'Arjasa', 'Kangayan', 'Sapeken', 'Masalembu'
     ]
+
+    DISTRICT_ALIASES = {
+        'sumenep kota': 'Kota Sumenep',
+        'kota': 'Kota Sumenep',
+        'kangean': 'Arjasa',
+        'pulau kangean': 'Arjasa',
+        'pulau sapeken': 'Sapeken',
+        'pulau raas': 'Raas',
+        'p. raas': 'Raas',
+        'pulau masalembu': 'Masalembu',
+        'guluk guluk': 'Guluk-Guluk',
+        'batang batang': 'Batang-Batang',
+        'marengan': 'Kalianget',
+        'kolor': 'Kota Sumenep',
+        'pabian': 'Kota Sumenep',
+        'pamolokan': 'Kota Sumenep',
+        'kepanjin': 'Kota Sumenep',
+    }
 
     def __init__(self, db):
         self.db = db
@@ -28,13 +47,26 @@ class Normalizer:
         regency = None
         district = None
 
-        if 'sumenep' in loc_lower:
+        if 'sumenep' in loc_lower or any(d.lower() in loc_lower for d in self.SUMENEP_DISTRICTS) or any(alias in loc_lower for alias in self.DISTRICT_ALIASES):
             regency = 'Sumenep'
-            # Look for specific district
-            for d in self.SUMENEP_DISTRICTS:
-                if d.lower() in loc_lower:
-                    district = d
+
+            # 1. Check direct aliases first
+            for alias, target_district in self.DISTRICT_ALIASES.items():
+                if re.search(r'\b' + re.escape(alias) + r'\b', loc_lower):
+                    district = target_district
                     break
+
+            # 2. Check 27 kecamatan names
+            if not district:
+                for d in self.SUMENEP_DISTRICTS:
+                    if re.search(r'\b' + re.escape(d.lower()) + r'\b', loc_lower):
+                        district = d
+                        break
+
+            # 3. Default to Kota Sumenep if general Sumenep without specific district
+            if not district and 'sumenep' in loc_lower:
+                district = 'Kota Sumenep'
+
         elif 'pamekasan' in loc_lower:
             regency = 'Pamekasan'
         elif 'sampang' in loc_lower:
@@ -82,31 +114,61 @@ class Normalizer:
 
         return None
 
-    def normalize_category(self, title, description=""):
-        combined = f"{title} {description}".lower()
+    def normalize_category(self, title, description="", raw_category=None):
+        combined = f"{title} {description} {raw_category or ''}".lower()
 
         for cat in self.categories:
-            cat_name = cat['name'].lower()
-            slug = cat['slug']
+            slug = cat.get('slug', '').lower()
 
-            if 'admin' in slug and any(w in combined for w in ['admin', 'tata usaha', 'data entry', 'resepsionis', 'sekretaris']):
-                return cat['id']
-            if 'it-' in slug and any(w in combined for w in ['programmer', 'developer', 'it support', 'komputer', 'software', 'web', 'jaringan']):
-                return cat['id']
-            if 'marketing' in slug and any(w in combined for w in ['sales', 'marketing', 'pemasaran', 'canvasser', 'promotor']):
-                return cat['id']
-            if 'keuangan' in slug and any(w in combined for w in ['akuntansi', 'accounting', 'kasir', 'pembukuan', 'finance']):
-                return cat['id']
-            if 'logistik' in slug and any(w in combined for w in ['gudang', 'logistik', 'packer', 'kurir', 'warehouse']):
-                return cat['id']
-            if 'pelayanan' in slug and any(w in combined for w in ['customer service', 'cs', 'call center', 'front desk']):
-                return cat['id']
-            if 'kesehatan' in slug and any(w in combined for w in ['perawat', 'apoteker', 'bidan', 'klinik', 'medis']):
-                return cat['id']
-            if 'pendidikan' in slug and any(w in combined for w in ['guru', 'pengajar', 'tutor', 'bimbel', 'dosen']):
+            if 'ritel' in slug and any(w in combined for w in [
+                'ritel', 'retail', 'toko', 'pramuniaga', 'kasir', 'store',
+                'minimarket', 'supermarket', 'fashion', 'penjaga stan', 'sembako', 'crew store'
+            ]):
                 return cat['id']
 
-        return None
+            if 'logistik' in slug and any(w in combined for w in [
+                'gudang', 'logistik', 'packer', 'kurir', 'warehouse',
+                'driver', 'supir', 'pengemudi', 'ekspedisi', 'spx', 'j&t', 'jne', 'distribusi', 'helper'
+            ]):
+                return cat['id']
+
+            if 'admin' in slug and any(w in combined for w in [
+                'admin', 'tata usaha', 'data entry', 'resepsionis', 'sekretaris',
+                'akuntansi', 'accounting', 'pembukuan', 'finance', 'perpajakan', 'keuangan', 'staf kantor'
+            ]):
+                return cat['id']
+
+            if 'layanan' in slug and any(w in combined for w in [
+                'sales', 'marketing', 'pemasaran', 'canvasser', 'promotor',
+                'customer service', 'cs', 'pelayanan', 'front office', 'spg', 'spb', 'telemarketing', 'penjualan'
+            ]):
+                return cat['id']
+
+            if 'teknik' in slug and any(w in combined for w in [
+                'programmer', 'developer', 'it support', 'komputer', 'software',
+                'web', 'jaringan', 'teknisi', 'mekanik', 'listrik', 'mesin',
+                'ac', 'operator produksi', 'pabrik', 'desain', 'grafis'
+            ]):
+                return cat['id']
+
+        # Fallback to general admin/default category if none matched
+        for cat in self.categories:
+            if 'admin' in cat.get('slug', ''):
+                return cat['id']
+
+        return self.categories[0]['id'] if self.categories else None
+
+    def normalize_employment_type(self, raw_type, text=""):
+        combined = f"{raw_type or ''} {text}".lower()
+        if re.search(r'\b(magang|intern|internship)\b', combined):
+            return 'Magang'
+        if re.search(r'\b(part-time|part time|paruh waktu)\b', combined):
+            return 'Part-time'
+        if re.search(r'\b(freelance|lepas|proyek)\b', combined):
+            return 'Freelance'
+        if re.search(r'\b(kontrak|pkwt|contract|outsourcing)\b', combined):
+            return 'Kontrak'
+        return 'Full-time'
 
     def match_skills(self, text_or_tags):
         if not text_or_tags:

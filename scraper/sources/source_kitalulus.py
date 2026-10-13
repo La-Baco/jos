@@ -6,67 +6,71 @@ from .base_source import BaseSource
 class SourceKitaLulus(BaseSource):
     def scrape(self):
         jobs = []
-        try:
-            # Respect robots.txt and reasonable timeout
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-            response = requests.get(self.list_url, headers=headers, timeout=5)
-            # KitaLulus is mostly client-side rendered, so basic bs4 won't get all jobs.
-            # We'll use fallback data specifically for Sumenep.
-        except Exception:
-            pass
+        target_url = 'https://www.kitalulus.com/lowongan/kota/kabupaten-sumenep'
 
-        if not jobs:
-            today = datetime.now()
-            jobs.extend([
-                {
-                    'original_url': 'https://www.kitalulus.com/lowongan/in-kabupaten-sumenep/pramuniaga-toko',
-                    'title': 'Pramuniaga Toko Pakaian',
-                    'company': 'Toko Busana Indah Sumenep',
-                    'location': 'Kec. Kota Sumenep, Kab. Sumenep',
-                    'category': 'Ritel & Perdagangan / Toko',
-                    'employment_type': 'Full-time',
-                    'education_requirement': 'SMA/SMK',
-                    'experience_requirement': '0 tahun',
-                    'age_requirement': '18-25 tahun',
-                    'salary_raw': 'Rp 1.500.000 - Rp 2.000.000',
-                    'description': 'Merapikan pakaian, melayani pembeli dengan ramah, menjaga kebersihan toko.',
-                    'requirements': '1. Lulusan SMA/SMK\n2. Penampilan menarik dan sopan\n3. Mampu bekerja dalam shift.',
-                    'skills': 'Customer Service, Komunikasi, Penjualan',
-                    'posted_at': (today - timedelta(days=2)).strftime('%Y-%m-%d'),
-                    'deadline': (today + timedelta(days=14)).strftime('%Y-%m-%d'),
-                },
-                {
-                    'original_url': 'https://www.kitalulus.com/lowongan/in-kabupaten-sumenep/kasir-minimarket',
-                    'title': 'Kasir Minimarket',
-                    'company': 'Minimarket Madura Berkah',
-                    'location': 'Kec. Batuan, Kab. Sumenep',
-                    'category': 'Ritel & Perdagangan / Toko',
-                    'employment_type': 'Full-time',
-                    'education_requirement': 'SMA/SMK',
-                    'experience_requirement': '1 tahun',
-                    'age_requirement': '19-27 tahun',
-                    'salary_raw': 'Rp 1.800.000 - Rp 2.200.000',
-                    'description': 'Melakukan transaksi pembayaran, menghitung stok kasir, laporan harian.',
-                    'requirements': '1. Pengalaman kasir 1 tahun\n2. Teliti dan jujur\n3. Ramah.',
-                    'skills': 'Kasir, Pembukuan Dasar, Komunikasi',
-                    'posted_at': (today - timedelta(days=1)).strftime('%Y-%m-%d'),
-                    'deadline': (today + timedelta(days=20)).strftime('%Y-%m-%d'),
-                },
-                {
-                    'original_url': 'https://www.kitalulus.com/lowongan/in-kabupaten-sumenep/admin-olshop',
-                    'title': 'Admin Online Shop',
-                    'company': 'Sumenep Store',
-                    'location': 'Kec. Kota Sumenep, Kab. Sumenep',
-                    'category': 'Staf Administrasi & Keuangan',
-                    'employment_type': 'Full-time',
-                    'education_requirement': 'SMA/SMK',
-                    'experience_requirement': '1 tahun',
-                    'salary_raw': 'Rp 2.000.000 - Rp 2.500.000',
-                    'description': 'Membalas chat customer, memproses pesanan di marketplace, packing barang ringan.',
-                    'requirements': '1. Familiar dengan Shopee/Tokopedia/TikTok Shop\n2. Fast response dan sabar\n3. Bisa packing rapi.',
-                    'skills': 'Digital Marketing, Customer Service, Administrasi',
-                    'posted_at': today.strftime('%Y-%m-%d'),
-                    'deadline': (today + timedelta(days=10)).strftime('%Y-%m-%d'),
-                }
-            ])
+        try:
+            headers = self.get_headers()
+            headers['Referer'] = 'https://www.kitalulus.com/'
+            response = requests.get(target_url, headers=headers, timeout=12)
+
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                cards = soup.find_all('a', href=lambda h: h and '/lowongan/detail/' in h)
+
+                for card in cards:
+                    href = card.get('href')
+                    if not href:
+                        continue
+
+                    full_url = f"https://www.kitalulus.com{href}" if href.startswith('/') else href
+                    texts = [t.strip() for t in card.stripped_strings]
+
+                    if not texts:
+                        continue
+
+                    title = texts[0]
+                    company = texts[1] if len(texts) > 1 else 'Perusahaan Mitra KitaLulus'
+                    loc = texts[2] if len(texts) > 2 else 'Kabupaten Sumenep, Jawa Timur'
+                    edu_raw = texts[3] if len(texts) > 3 else 'SMA/SMK'
+                    salary_raw = texts[4] if len(texts) > 4 else None
+
+                    if salary_raw and ('dinegosiasikan' in salary_raw.lower() or 'kompetitif' in salary_raw.lower()):
+                        salary_raw = None
+
+                    # Deduce category based on title
+                    cat = 'Ritel & Perdagangan / Toko'
+                    t_lower = title.lower()
+                    if any(w in t_lower for w in ['kurir', 'hub', 'lead', 'delivery', 'driver', 'operasional']):
+                        cat = 'Logistik, Kurir & Operasional Field'
+                    elif any(w in t_lower for w in ['admin', 'cs', 'customer service', 'finance', 'akuntansi']):
+                        cat = 'Staf Administrasi & Keuangan'
+                    elif any(w in t_lower for w in ['sales', 'marketing', 'partner', 'promosi', 'account']):
+                        cat = 'Layanan Pelanggan & Sales'
+                    elif any(w in t_lower for w in ['teknik', 'teknisi', 'it', 'mekanik', 'developer']):
+                        cat = 'Teknik, IT & Industri Lokal'
+
+                    posted_at = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
+                    deadline = (datetime.now() + timedelta(days=20)).strftime('%Y-%m-%d')
+
+                    jobs.append({
+                        'original_url': full_url,
+                        'title': title,
+                        'company': company,
+                        'location': loc,
+                        'category': cat,
+                        'employment_type': 'Full-time',
+                        'education_requirement': edu_raw,
+                        'experience_requirement': '0 tahun (Fresh Graduate)',
+                        'salary_raw': salary_raw,
+                        'description': f"Lowongan {title} di {company}, penempatan {loc}. Terverifikasi di portal bursa kerja KitaLulus.",
+                        'requirements': f"Pendidikan {edu_raw}. Silakan melamar langsung melalui aplikasi atau situs resmi KitaLulus.",
+                        'skills': 'Customer Service, Komunikasi & Negosiasi, Kedisiplinan',
+                        'posted_at': posted_at,
+                        'deadline': deadline,
+                    })
+
+        except Exception as e:
+            print(f"  [WARN] KitaLulus live scraper error: {e}")
+
         return jobs
+

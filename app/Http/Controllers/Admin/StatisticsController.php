@@ -35,7 +35,7 @@ class StatisticsController extends Controller
             $q->whereHas('user', function ($u) {
                 $u->where('role', 'job_seeker');
             });
-        }])->orderBy('hierarchy_order')->get();
+        }])->orderBy('hierarchy_order')->get()->keyBy('id');
 
         // 5. Skill yang paling banyak dicari perusahaan vs Skill pencari kerja (Gap Analysis)
         $topDemandedSkills = Skill::withCount('jobs')

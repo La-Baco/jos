@@ -144,4 +144,65 @@ class Job extends Model
 
         return 'Gaji tidak dicantumkan';
     }
+
+    public function getOriginalUrlAttribute(?string $value): string
+    {
+        // 1. If empty or '#' or javascript:
+        if (empty($value) || $value === '#' || str_starts_with($value, 'javascript:')) {
+            return $this->source?->list_url ?: ($this->source?->base_url ?: 'https://sumenepkab.go.id/berita');
+        }
+
+        // 2. Fix non-existent local government / dummy regional portal subdomains
+        if (str_contains($value, 'disnaker.sumenepkab.go.id') || str_contains($value, 'lokermadura.id')) {
+            return 'https://sumenepkab.go.id/berita';
+        }
+
+        if (str_contains($value, 'infokerja.jatimprov.go.id')) {
+            return 'https://disnakertrans.jatimprov.go.id';
+        }
+
+        // 3. KitaLulus: Preserve real detail links, fix only dummy legacy patterns
+        if (str_contains($value, 'kitalulus.com')) {
+            if (str_contains($value, '/lowongan/detail/')) {
+                return $value;
+            }
+            if (str_contains($value, '/in-') || str_contains($value, 'staf-toko') || str_contains($value, 'pramuniaga-toko')) {
+                return 'https://www.kitalulus.com/lowongan/kota/kabupaten-sumenep';
+            }
+        }
+
+        // 4. Pintarnya: Preserve real job slugs with IDs, fix only legacy dummy patterns
+        if (str_contains($value, 'pintarnya.com')) {
+            if (preg_match('/\/lowongan-kerja\/[a-z0-9\-]+-\d+$/i', $value)) {
+                return $value;
+            }
+            if (str_contains($value, '/l-') || str_contains($value, 'kurir-express') || str_contains($value, 'driver-operasional')) {
+                return 'https://pintarnya.com/cari-loker?q=sumenep';
+            }
+        }
+
+        // 5. Glints: Preserve real live opportunity UUID URLs, fix only legacy dummy patterns
+        if (str_contains($value, 'glints.com')) {
+            if (str_contains($value, '/opportunities/jobs/')) {
+                return $value;
+            }
+            if (str_contains($value, '/job-location/')) {
+                return 'https://glints.com/id/opportunities/jobs/explore?keyword=Sumenep';
+            }
+        }
+
+        // 6. JobStreet: Preserve real job URLs or route to Sumenep search index
+        if (str_contains($value, 'jobstreet')) {
+            if (str_contains($value, 'admin-pembukuan') || str_contains($value, 'id.jobstreet.com')) {
+                return 'https://www.jobstreet.co.id/id/job-search/sumenep-jobs/';
+            }
+        }
+
+        // 7. Ensure valid URL scheme
+        if (! str_starts_with($value, 'http://') && ! str_starts_with($value, 'https://')) {
+            return 'https://'.$value;
+        }
+
+        return $value;
+    }
 }

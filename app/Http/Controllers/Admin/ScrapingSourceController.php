@@ -82,6 +82,7 @@ class ScrapingSourceController extends Controller
 
     public function triggerScrape(Request $request, int $id): RedirectResponse
     {
+        set_time_limit(180);
         $source = ScrapingSource::findOrFail($id);
 
         try {
@@ -96,6 +97,8 @@ class ScrapingSourceController extends Controller
 
     public function triggerScrapeAll(): RedirectResponse
     {
+        set_time_limit(300);
+
         try {
             Artisan::call('jobs:scrape', ['--source' => 'all']);
 

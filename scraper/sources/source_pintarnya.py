@@ -1,68 +1,85 @@
 import requests
 from datetime import datetime, timedelta
-from bs4 import BeautifulSoup
 from .base_source import BaseSource
 
 class SourcePintarnya(BaseSource):
     def scrape(self):
         jobs = []
-        try:
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-            response = requests.get(self.list_url, headers=headers, timeout=5)
-        except Exception:
-            pass
+        target_api = 'https://api.pintarnya.com/api/pk/job?search=sumenep'
 
-        if not jobs:
-            today = datetime.now()
-            jobs.extend([
-                {
-                    'original_url': 'https://pintarnya.com/l-kab-sumenep,jawa-timur-lowongan/driver-operasional',
-                    'title': 'Driver Operasional (Supir)',
-                    'company': 'Distributor Sembako Sumenep',
-                    'location': 'Kec. Kota Sumenep, Kab. Sumenep',
-                    'category': 'Logistik, Kurir & Operasional Field',
-                    'employment_type': 'Full-time',
-                    'education_requirement': 'SMA/SMK',
-                    'experience_requirement': '2 tahun',
-                    'age_requirement': '25-40 tahun',
-                    'salary_raw': 'Rp 2.000.000 - Rp 2.500.000',
-                    'description': 'Mengemudikan mobil box (L300/Engkel) untuk distribusi barang sembako ke toko-toko se-Kabupaten Sumenep.',
-                    'requirements': '1. Memiliki SIM B1 atau A aktif.\n2. Hafal jalan di Sumenep dan sekitarnya.\n3. Sehat jasmani dan kuat angkat barang ringan.',
-                    'skills': 'Driver, Operasional, Logistik',
-                    'posted_at': (today - timedelta(days=1)).strftime('%Y-%m-%d'),
-                    'deadline': (today + timedelta(days=20)).strftime('%Y-%m-%d'),
-                },
-                {
-                    'original_url': 'https://pintarnya.com/l-kab-sumenep,jawa-timur-lowongan/kurir-shopee',
-                    'title': 'Kurir Paket SPX Express',
-                    'company': 'SPX Express Hub Sumenep',
-                    'location': 'Kec. Bluto, Kab. Sumenep',
-                    'category': 'Logistik, Kurir & Operasional Field',
-                    'employment_type': 'Kontrak',
-                    'education_requirement': 'SMA/SMK',
-                    'experience_requirement': '0 tahun',
-                    'salary_raw': 'Rp 1.500.000 - Rp 3.000.000 (Target)',
-                    'description': 'Mengantarkan paket e-commerce ke rumah pelanggan sesuai rute harian dengan tepat waktu.',
-                    'requirements': '1. Memiliki motor pribadi dan SIM C.\n2. Memiliki HP Android RAM Min 3GB.\n3. Mengetahui area Bluto dan sekitarnya.',
-                    'skills': 'Kurir, Customer Service',
-                    'posted_at': (today - timedelta(days=2)).strftime('%Y-%m-%d'),
-                    'deadline': (today + timedelta(days=14)).strftime('%Y-%m-%d'),
-                },
-                {
-                    'original_url': 'https://pintarnya.com/l-kab-sumenep,jawa-timur-lowongan/teknisi-ac',
-                    'title': 'Teknisi AC & Kelistrikan',
-                    'company': 'CV Sumenep Teknik Sejahtera',
-                    'location': 'Kec. Kota Sumenep, Kab. Sumenep',
-                    'category': 'Teknik, IT & Industri Lokal',
-                    'employment_type': 'Full-time',
-                    'education_requirement': 'SMK/SMA',
-                    'experience_requirement': '1 tahun',
-                    'salary_raw': 'Rp 2.000.000 - Rp 3.000.000',
-                    'description': 'Melakukan servis rutin, cuci AC, dan perbaikan AC / kelistrikan di rumah pelanggan atau instansi.',
-                    'requirements': '1. Lulusan SMK Listrik / Elektronika.\n2. Berpengalaman instalasi dan servis AC minimal 1 tahun.\n3. Ramah dan sopan kepada pelanggan.',
-                    'skills': 'Teknisi, Listrik, Pelayanan Pelanggan',
-                    'posted_at': today.strftime('%Y-%m-%d'),
-                    'deadline': (today + timedelta(days=30)).strftime('%Y-%m-%d'),
-                }
-            ])
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Origin': 'https://pintarnya.com',
+                'Referer': 'https://pintarnya.com/cari-loker?q=sumenep',
+            }
+            response = requests.get(target_api, headers=headers, timeout=12)
+
+            if response.status_code == 200:
+                data = response.json()
+                job_list = data.get('data', {}).get('list', [])
+
+                for item in job_list:
+                    title = item.get('title')
+                    if not title:
+                        continue
+
+                    slug = item.get('slug') or item.get('id')
+                    full_url = f"https://pintarnya.com/lowongan-kerja/{slug}"
+
+                    company_info = item.get('company') or {}
+                    company_name = company_info.get('name') or item.get('company_name') or 'Perusahaan Mitra Pintarnya'
+
+                    # Salary
+                    s_min = item.get('salary_min')
+                    s_max = item.get('salary_max')
+                    salary_raw = None
+                    if s_min and s_max:
+                        salary_raw = f"Rp {s_min:,.0f} - Rp {s_max:,.0f}"
+                    elif s_min:
+                        salary_raw = f"Rp {s_min:,.0f}"
+
+                    # Location
+                    loc_info = item.get('location') or {}
+                    district = loc_info.get('district')
+                    city = loc_info.get('city') or 'Kabupaten Sumenep'
+                    location_str = f"Kec. {district}, {city}" if district else f"{city}, Jawa Timur"
+
+                    # Category
+                    cat = 'Logistik, Kurir & Operasional Field'
+                    t_lower = title.lower()
+                    if any(w in t_lower for w in ['crew', 'outlet', 'toko', 'ritel', 'kasir']):
+                        cat = 'Ritel & Perdagangan / Toko'
+                    elif any(w in t_lower for w in ['admin', 'collection', 'penagihan', 'keuangan']):
+                        cat = 'Staf Administrasi & Keuangan'
+                    elif any(w in t_lower for w in ['sales', 'marketing', 'akuisisi', 'relation', 'promotor', 'to edc']):
+                        cat = 'Layanan Pelanggan & Sales'
+                    elif any(w in t_lower for w in ['teknik', 'teknisi', 'it', 'mekanik']):
+                        cat = 'Teknik, IT & Industri Lokal'
+
+                    posted_at = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+                    deadline = (datetime.now() + timedelta(days=25)).strftime('%Y-%m-%d')
+
+                    jobs.append({
+                        'original_url': full_url,
+                        'title': title,
+                        'company': company_name,
+                        'location': location_str,
+                        'category': cat,
+                        'employment_type': 'Full-time',
+                        'education_requirement': 'SMA/SMK',
+                        'experience_requirement': '0 tahun (Fresh Graduate)',
+                        'salary_raw': salary_raw,
+                        'description': f"Lowongan {title} di {company_name}. Penempatan {location_str}. Terverifikasi di portal Pintarnya.",
+                        'requirements': "Pendidikan minimal SMA/SMK sederajat. Siap ditempatkan di area Sumenep.",
+                        'skills': 'Komunikasi & Negosiasi, Kedisiplinan, Kerja Sama Tim',
+                        'posted_at': posted_at,
+                        'deadline': deadline,
+                    })
+
+        except Exception as e:
+            print(f"  [WARN] Pintarnya live API scraper error: {e}")
+
         return jobs
+

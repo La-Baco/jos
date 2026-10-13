@@ -203,15 +203,24 @@
             </div>
 
             <!-- Tombol Aksi Lamaran Asli -->
-            <div class="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                    <h3 class="text-base font-bold">Tertarik dengan posisi ini?</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Kirimkan berkas lamaran Anda langsung ke penyedia lowongan resmi.</p>
+            <div class="bg-gradient-to-r from-slate-900 to-blue-950 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-lg">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            ✓ Sumber Terverifikasi: {{ $job->source ? $job->source->name : 'Publik' }}
+                        </div>
+                        <h3 class="text-lg font-black tracking-tight">Siap Melamar Posisi Ini?</h3>
+                        <p class="text-xs text-slate-300 max-w-lg leading-relaxed">
+                            JOS menghubungkan Anda langsung ke formulir atau website resmi penyedia lowongan tanpa perantara. Pastikan dokumen CV dan portofolio Anda telah siap.
+                        </p>
+                    </div>
+
+                    <a href="{{ $job->original_url }}" target="_blank" rel="noopener noreferrer"
+                       class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-blue-600/30 transition-all hover:scale-105 text-center flex items-center justify-center shrink-0">
+                        <span>Lamar di Sumber Resmi</span>
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
                 </div>
-                <a href="{{ $job->original_url }}" target="_blank" rel="noopener noreferrer"
-                   class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition-all text-center">
-                    Buka Website Sumber Asli
-                </a>
             </div>
         </div>
 
@@ -296,6 +305,17 @@
                 </div>
             @endif
         </div>
+    <!-- Mobile Floating Apply Bar (Memudahkan pencari kerja melamar lewat HP tanpa repot scroll) -->
+    <div class="md:hidden fixed bottom-14 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2.5 shadow-2xl flex items-center justify-between gap-3">
+        <div class="min-w-0 flex-1">
+            <span class="block text-[11px] font-extrabold text-slate-900 truncate">{{ $job->title }}</span>
+            <span class="block text-[10px] text-emerald-700 font-bold truncate">{{ $job->formatted_salary }}</span>
+        </div>
+        <a href="{{ $job->original_url }}" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-md shrink-0">
+            <span>Lamar Sekarang</span>
+            <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
     </div>
 </div>
 @endsection
