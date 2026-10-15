@@ -321,7 +321,16 @@ class UserSeeder extends Seeder
             }
         }
 
-        // Clean up any stray job_seeker users not in the 216 list
-        User::where('role', 'job_seeker')->whereNotIn('id', $seededUserIds)->delete();
+        // Clean up any stray job_seeker users not in the 216 list (preserving official accounts)
+        $officialEmails = [
+            'danurwenda@gmail.com',
+            'danur@synvora.com',
+            'ilhammaulana@gmail.com',
+            'ilham@synvora.com',
+        ];
+        User::where('role', 'job_seeker')
+            ->whereNotIn('id', $seededUserIds)
+            ->whereNotIn('email', $officialEmails)
+            ->delete();
     }
 }

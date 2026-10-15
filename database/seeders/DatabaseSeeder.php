@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             SkillSeeder::class,
             ScrapingSourceSeeder::class,
             UserSeeder::class,
+            OfficialAccountSeeder::class,
             JobSeeder::class,
         ]);
     }
