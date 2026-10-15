@@ -17,208 +17,202 @@ class JobSeeder extends Seeder
      */
     public function run(): void
     {
-        $kitalulus = ScrapingSource::where('name', 'like', '%KitaLulus%')->first();
-        $pintarnya = ScrapingSource::where('name', 'like', '%Pintarnya%')->first();
-        $glints = ScrapingSource::where('name', 'like', '%Glints%')->first();
-        $jobstreet = ScrapingSource::where('name', 'like', '%JobStreet%')->first();
+        $sources = ScrapingSource::all()->keyBy(fn ($s) => strtolower($s->name));
+        $eduLevels = EducationLevel::all()->keyBy('code');
+        $categories = JobCategory::all()->keyBy('slug');
+        $skills = Skill::all()->keyBy(fn ($s) => strtolower($s->name));
 
-        $sma = EducationLevel::where('code', 'SMA/SMK')->first();
-        $d3 = EducationLevel::where('code', 'D3')->first();
-        $s1 = EducationLevel::where('code', 'S1')->first();
+        $jsonPath = __DIR__.'/data/jobs.json';
+        $jobsList = [];
 
-        $ritelCat = JobCategory::where('slug', 'ritel-perdagangan-toko')->first();
-        $logistikCat = JobCategory::where('slug', 'logistik-kurir-operasional-field')->first();
-        $adminCat = JobCategory::where('slug', 'staf-administrasi-keuangan')->first();
-        $salesCat = JobCategory::where('slug', 'layanan-pelanggan-sales')->first();
-        $teknikCat = JobCategory::where('slug', 'teknik-it-industri-lokal')->first();
+        if (file_exists($jsonPath)) {
+            $jsonContent = file_get_contents($jsonPath);
+            $decoded = json_decode($jsonContent, true);
+            if (is_array($decoded) && ! empty($decoded)) {
+                $jobsList = $decoded;
+            }
+        }
 
-        $excel = Skill::where('name', 'Microsoft Excel')->first();
-        $word = Skill::where('name', 'Microsoft Word')->first();
-        $office = Skill::where('name', 'Microsoft Office')->first();
-        $dataEntry = Skill::where('name', 'Data Entry')->first();
-        $php = Skill::where('name', 'PHP')->first();
-        $laravel = Skill::where('name', 'Laravel')->first();
-        $js = Skill::where('name', 'JavaScript')->first();
-        $sql = Skill::where('name', 'MySQL')->first();
-        $sales = Skill::where('name', 'Penjualan (Sales)')->first();
-        $comm = Skill::where('name', 'Komunikasi & Negosiasi')->first();
-        $cs = Skill::where('name', 'Customer Service')->first();
-        $warehouse = Skill::where('name', 'Manajemen Gudang (Warehouse)')->first();
-        $kasir = Skill::where('name', 'Operasional Kasir')->first();
+        // Fallback minimal demo dataset if jobs.json is missing
+        if (empty($jobsList)) {
+            $jobsList = [
+                [
+                    'source_name' => 'KitaLulus',
+                    'title' => 'Staf Toko & Kasir',
+                    'company' => 'Toko Retail Sumenep',
+                    'location' => 'Kota Sumenep',
+                    'normalized_regency' => 'Sumenep',
+                    'normalized_district' => 'Kota Sumenep',
+                    'is_remote' => false,
+                    'category_slug' => 'ritel-perdagangan-toko',
+                    'education_code' => 'SMA/SMK',
+                    'employment_type' => 'Full-time',
+                    'min_experience_years' => 0,
+                    'min_age' => 18,
+                    'max_age' => 25,
+                    'salary_min' => 1800000,
+                    'salary_max' => 2200000,
+                    'description' => 'Melayani pelanggan, melakukan transaksi pembayaran dengan mesin kasir, dan merapikan stok barang di toko.',
+                    'requirements' => "1. Pria / Wanita usia 18-25 tahun.\n2. Lulusan SMA/SMK sederajat.\n3. Teliti, jujur, dan komunikatif.",
+                    'original_url' => 'https://kerja.kitalulus.com/id/lowongan-kerja',
+                    'posted_days_ago' => 2,
+                    'skills' => ['Operasional Kasir', 'Komunikasi & Negosiasi'],
+                ],
+                [
+                    'source_name' => 'Pintarnya',
+                    'title' => 'Kurir Express Field',
+                    'company' => 'J&T / Ekspedisi Area Madura',
+                    'location' => 'Kalianget, Sumenep',
+                    'normalized_regency' => 'Sumenep',
+                    'normalized_district' => 'Kalianget',
+                    'is_remote' => false,
+                    'category_slug' => 'logistik-kurir-operasional-field',
+                    'education_code' => 'SMA/SMK',
+                    'employment_type' => 'Full-time',
+                    'min_experience_years' => 1,
+                    'min_age' => 20,
+                    'max_age' => 35,
+                    'salary_min' => 2000000,
+                    'salary_max' => 2500000,
+                    'description' => 'Mengirim dan menjemput paket di area Kalianget dan sekitarnya.',
+                    'requirements' => "1. Pria usia max 35 tahun.\n2. Memiliki SIM C dan kendaraan pribadi.\n3. Paham area Kalianget.",
+                    'original_url' => 'https://pintarnya.com/lowongan-kerja',
+                    'posted_days_ago' => 1,
+                    'skills' => [],
+                ],
+                [
+                    'source_name' => 'Glints',
+                    'title' => 'Sales Executive Ritel',
+                    'company' => 'Distributor Consumer Goods',
+                    'location' => 'Sumenep',
+                    'normalized_regency' => 'Sumenep',
+                    'normalized_district' => 'Kota Sumenep',
+                    'is_remote' => false,
+                    'category_slug' => 'layanan-pelanggan-sales',
+                    'education_code' => 'SMA/SMK',
+                    'employment_type' => 'Kontrak',
+                    'min_experience_years' => 1,
+                    'min_age' => 21,
+                    'max_age' => 35,
+                    'salary_min' => 2500000,
+                    'salary_max' => 3500000,
+                    'description' => 'Memasarkan produk ke berbagai toko ritel di Kabupaten Sumenep.',
+                    'requirements' => "1. Pengalaman sales minimal 1 tahun.\n2. Memiliki SIM C aktif.\n3. Terbiasa dengan target.",
+                    'original_url' => 'https://glints.com/id/opportunities/jobs/explore?country=ID',
+                    'posted_days_ago' => 4,
+                    'skills' => ['Penjualan (Sales)', 'Komunikasi & Negosiasi'],
+                ],
+                [
+                    'source_name' => 'JobStreet',
+                    'title' => 'Staf Administrasi Umum & Pembukuan',
+                    'company' => 'CV Lokal Sumenep',
+                    'location' => 'Kota Sumenep',
+                    'normalized_regency' => 'Sumenep',
+                    'normalized_district' => 'Kota Sumenep',
+                    'is_remote' => false,
+                    'category_slug' => 'staf-administrasi-keuangan',
+                    'education_code' => 'SMA/SMK',
+                    'employment_type' => 'Full-time',
+                    'min_experience_years' => 1,
+                    'min_age' => 20,
+                    'max_age' => 30,
+                    'salary_min' => 2000000,
+                    'salary_max' => 2800000,
+                    'description' => 'Melakukan pencatatan administrasi harian, rekapitulasi data penjualan, dan pembukuan ringan.',
+                    'requirements' => "1. Pendidikan min. SMA/SMK sederajat.\n2. Menguasai Microsoft Excel dan Word.\n3. Teliti dalam hal angka.",
+                    'original_url' => 'https://www.jobstreet.co.id/id/job-search/sumenep-jobs/',
+                    'posted_days_ago' => 2,
+                    'skills' => ['Microsoft Excel', 'Microsoft Word', 'Data Entry', 'Microsoft Office'],
+                ],
+                [
+                    'source_name' => 'Glints',
+                    'title' => 'Web Developer / IT Support (Remote)',
+                    'company' => 'Tech Studio Digital',
+                    'location' => 'Remote / WFH',
+                    'normalized_regency' => 'Nasional',
+                    'normalized_district' => null,
+                    'is_remote' => true,
+                    'category_slug' => 'teknik-it-industri-lokal',
+                    'education_code' => 'S1',
+                    'employment_type' => 'Full-time',
+                    'min_experience_years' => 1,
+                    'min_age' => 20,
+                    'max_age' => 35,
+                    'salary_min' => 4500000,
+                    'salary_max' => 6000000,
+                    'description' => 'Mengembangkan aplikasi web modern berbasis Laravel dan integrasi basis data.',
+                    'requirements' => "1. Pendidikan min. S1 Teknik Informatika / Sistem Informasi.\n2. Menguasai PHP, Laravel, MySQL, dan JavaScript.\n3. Mampu bekerja secara mandiri dan remote.",
+                    'original_url' => 'https://glints.com/id/opportunities/jobs/remote',
+                    'posted_days_ago' => 1,
+                    'skills' => ['PHP', 'Laravel', 'MySQL', 'JavaScript'],
+                ],
+            ];
+        }
 
-        $demoJobs = [
-            // 1. "Staf Toko & Kasir" (KitaLulus)
-            [
-                'title' => 'Staf Toko & Kasir',
-                'company' => 'Toko Retail Sumenep',
-                'location' => 'Kota Sumenep',
-                'normalized_regency' => 'Sumenep',
-                'normalized_district' => 'Kota Sumenep',
-                'is_remote' => false,
-                'source_id' => $kitalulus?->id,
-                'original_url' => 'https://kerja.kitalulus.com/id/lowongan-kerja',
-                'category_id' => $ritelCat?->id,
-                'education_id' => $sma?->id,
-                'employment_type' => 'Full-time',
-                'min_experience_years' => 0,
-                'min_age' => 18,
-                'max_age' => 25,
-                'salary_min' => 1800000,
-                'salary_max' => 2200000,
-                'description' => 'Melayani pelanggan, melakukan transaksi pembayaran dengan mesin kasir, dan merapikan stok barang di toko.',
-                'requirements' => "1. Pria / Wanita usia 18-25 tahun.\n2. Lulusan SMA/SMK sederajat.\n3. Teliti, jujur, dan komunikatif.",
-                'posted_at' => Carbon::now()->subDays(2),
-                'deadline' => Carbon::now()->addDays(14),
-                'status' => 'active',
-                'skills' => [$kasir?->id, $comm?->id],
-            ],
+        $defaultSource = ScrapingSource::first();
+        $defaultCat = JobCategory::first();
+        $defaultEdu = EducationLevel::first();
 
-            // 2. "Kurir Express Field" (Pintarnya)
-            [
-                'title' => 'Kurir Express Field',
-                'company' => 'J&T / Ekspedisi Area Madura',
-                'location' => 'Kalianget, Sumenep',
-                'normalized_regency' => 'Sumenep',
-                'normalized_district' => 'Kalianget',
-                'is_remote' => false,
-                'source_id' => $pintarnya?->id,
-                'original_url' => 'https://pintarnya.com/lowongan-kerja',
-                'category_id' => $logistikCat?->id,
-                'education_id' => $sma?->id,
-                'employment_type' => 'Full-time',
-                'min_experience_years' => 1,
-                'min_age' => 20,
-                'max_age' => 35,
-                'salary_min' => 2000000,
-                'salary_max' => 2500000,
-                'description' => 'Mengirim dan menjemput paket di area Kalianget dan sekitarnya.',
-                'requirements' => "1. Pria usia max 35 tahun.\n2. Memiliki SIM C dan kendaraan pribadi.\n3. Paham area Kalianget.",
-                'posted_at' => Carbon::now()->subDays(1),
-                'deadline' => Carbon::now()->addDays(20),
-                'status' => 'active',
-                'skills' => [],
-            ],
+        foreach ($jobsList as $data) {
+            $srcName = strtolower($data['source_name'] ?? '');
+            $sourceId = null;
+            foreach ($sources as $k => $s) {
+                if (str_contains($k, $srcName) || str_contains($srcName, $k)) {
+                    $sourceId = $s->id;
+                    break;
+                }
+            }
+            if (! $sourceId) {
+                $sourceId = $defaultSource?->id;
+            }
 
-            // 3. "Sales Executive Ritel" (Glints)
-            [
-                'title' => 'Sales Executive Ritel',
-                'company' => 'Distributor Consumer Goods',
-                'location' => 'Sumenep',
-                'normalized_regency' => 'Sumenep',
-                'normalized_district' => 'Kota Sumenep',
-                'is_remote' => false,
-                'source_id' => $glints?->id,
-                'original_url' => 'https://glints.com/id/opportunities/jobs/explore?country=ID',
-                'category_id' => $salesCat?->id,
-                'education_id' => $sma?->id,
-                'employment_type' => 'Kontrak',
-                'min_experience_years' => 1,
-                'min_age' => 21,
-                'max_age' => 35,
-                'salary_min' => 2500000,
-                'salary_max' => 3500000,
-                'description' => 'Memasarkan produk ke berbagai toko ritel di Kabupaten Sumenep.',
-                'requirements' => "1. Pengalaman sales minimal 1 tahun.\n2. Memiliki SIM C aktif.\n3. Terbiasa dengan target.",
-                'posted_at' => Carbon::now()->subDays(4),
-                'deadline' => Carbon::now()->addDays(15),
-                'status' => 'active',
-                'skills' => [$sales?->id, $comm?->id],
-            ],
+            $catId = $categories[$data['category_slug'] ?? '']?->id ?? $defaultCat?->id;
+            $eduId = $eduLevels[$data['education_code'] ?? '']?->id ?? $defaultEdu?->id;
 
-            // 4. "Staf Administrasi Umum & Pembukuan" (JobStreet)
-            [
-                'title' => 'Staf Administrasi Umum & Pembukuan',
-                'company' => 'CV Lokal Sumenep',
-                'location' => 'Kota Sumenep',
-                'normalized_regency' => 'Sumenep',
-                'normalized_district' => 'Kota Sumenep',
-                'is_remote' => false,
-                'source_id' => $jobstreet?->id,
-                'original_url' => 'https://www.jobstreet.co.id/id/job-search/sumenep-jobs/',
-                'category_id' => $adminCat?->id,
-                'education_id' => $sma?->id,
-                'employment_type' => 'Full-time',
-                'min_experience_years' => 1,
-                'min_age' => 20,
-                'max_age' => 30,
-                'salary_min' => 2000000,
-                'salary_max' => 2800000,
-                'description' => 'Melakukan pencatatan administrasi harian, rekapitulasi data penjualan, dan pembukuan ringan.',
-                'requirements' => "1. Pendidikan min. SMA/SMK sederajat.\n2. Menguasai Microsoft Excel dan Word.\n3. Teliti dalam hal angka.",
-                'posted_at' => Carbon::now()->subDays(2),
-                'deadline' => Carbon::now()->addDays(30),
-                'status' => 'active',
-                'skills' => [$excel?->id, $word?->id, $dataEntry?->id, $office?->id],
-            ],
-
-            // 5. "Web Developer / IT Support (Remote)" (Glints)
-            [
-                'title' => 'Web Developer / IT Support (Remote)',
-                'company' => 'Tech Studio Digital',
-                'location' => 'Remote / WFH',
-                'normalized_regency' => 'Nasional',
-                'normalized_district' => null,
-                'is_remote' => true,
-                'source_id' => $glints?->id,
-                'original_url' => 'https://glints.com/id/opportunities/jobs/explore?country=ID',
-                'category_id' => $teknikCat?->id,
-                'education_id' => $s1?->id,
-                'employment_type' => 'Full-time',
-                'min_experience_years' => 1,
-                'min_age' => 20,
-                'max_age' => 35,
-                'salary_min' => 4500000,
-                'salary_max' => 6000000,
-                'description' => 'Mengembangkan aplikasi web modern berbasis Laravel dan integrasi basis data.',
-                'requirements' => "1. Pendidikan min. S1 Teknik Informatika / Sistem Informasi.\n2. Menguasai PHP, Laravel, MySQL, dan JavaScript.\n3. Mampu bekerja secara mandiri dan remote.",
-                'posted_at' => Carbon::now()->subDays(1),
-                'deadline' => Carbon::now()->addDays(25),
-                'status' => 'active',
-                'skills' => [$php?->id, $laravel?->id, $sql?->id, $js?->id],
-            ],
-        ];
-
-        foreach ($demoJobs as $data) {
-            $skills = $data['skills'];
-            unset($data['skills']);
+            $daysAgo = $data['posted_days_ago'] ?? 2;
+            $postedAt = Carbon::now()->subDays($daysAgo);
+            $deadline = Carbon::now()->addDays(20);
 
             $job = Job::updateOrCreate(
                 ['original_url' => $data['original_url']],
                 [
-                    'scraping_source_id' => $data['source_id'],
+                    'scraping_source_id' => $sourceId,
                     'url_hash' => hash('sha256', $data['original_url']),
                     'content_hash' => hash('sha256', strtolower($data['title'].'|'.$data['company'].'|'.$data['location'])),
                     'title' => $data['title'],
                     'normalized_title' => $data['title'],
                     'company' => $data['company'],
                     'location' => $data['location'],
-                    'normalized_regency' => $data['normalized_regency'],
-                    'normalized_district' => $data['normalized_district'],
-                    'is_remote' => $data['is_remote'],
-                    'job_category_id' => $data['category_id'],
-                    'employment_type' => $data['employment_type'],
-                    'education_level_id' => $data['education_id'],
-                    'min_experience_years' => $data['min_experience_years'],
-                    'min_age' => $data['min_age'],
-                    'max_age' => $data['max_age'],
-                    'salary_min' => $data['salary_min'],
-                    'salary_max' => $data['salary_max'],
-                    'description' => $data['description'],
-                    'requirements' => $data['requirements'],
-                    'posted_at' => $data['posted_at'],
-                    'deadline' => $data['deadline'],
-                    'status' => $data['status'],
+                    'normalized_regency' => $data['normalized_regency'] ?? 'Sumenep',
+                    'normalized_district' => $data['normalized_district'] ?? null,
+                    'is_remote' => (bool) ($data['is_remote'] ?? false),
+                    'job_category_id' => $catId,
+                    'employment_type' => $data['employment_type'] ?? 'Full-time',
+                    'education_level_id' => $eduId,
+                    'min_experience_years' => $data['min_experience_years'] ?? 0,
+                    'min_age' => $data['min_age'] ?? null,
+                    'max_age' => $data['max_age'] ?? null,
+                    'salary_min' => $data['salary_min'] ?? null,
+                    'salary_max' => $data['salary_max'] ?? null,
+                    'description' => $data['description'] ?? '',
+                    'requirements' => $data['requirements'] ?? '',
+                    'posted_at' => $postedAt,
+                    'deadline' => $deadline,
+                    'status' => 'active',
                     'scraped_at' => Carbon::now(),
                 ]
             );
 
-            $validSkills = array_filter($skills);
-            if (! empty($validSkills)) {
-                $syncData = [];
-                foreach ($validSkills as $skId) {
-                    $syncData[$skId] = ['is_required' => true];
+            // Sync skills
+            $skillSync = [];
+            foreach (($data['skills'] ?? []) as $skName) {
+                $skLower = strtolower(trim($skName));
+                if (isset($skills[$skLower])) {
+                    $skillSync[$skills[$skLower]->id] = ['is_required' => true];
                 }
-                $job->skills()->sync($syncData);
+            }
+            if (! empty($skillSync)) {
+                $job->skills()->sync($skillSync);
             }
         }
     }

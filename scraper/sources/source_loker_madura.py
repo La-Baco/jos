@@ -35,6 +35,10 @@ class SourceLokerMadura(BaseSource):
             pass
 
         if not jobs:
+            backup = self.get_fallback_jobs()
+            if backup:
+                return backup
+
             today = datetime.now()
             jobs.extend([
                 {

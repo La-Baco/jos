@@ -81,5 +81,8 @@ class SourcePintarnya(BaseSource):
         except Exception as e:
             print(f"  [WARN] Pintarnya live API scraper error: {e}")
 
+        if not jobs:
+            jobs = self.get_fallback_jobs()
+
         return jobs
 

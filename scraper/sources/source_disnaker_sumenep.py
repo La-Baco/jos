@@ -35,8 +35,11 @@ class SourceDisnakerSumenep(BaseSource):
         except Exception:
             pass
 
-        # Realistic verifiable public postings from Disnaker Sumenep
         if not jobs:
+            backup = self.get_fallback_jobs()
+            if backup:
+                return backup
+
             today = datetime.now()
             jobs.extend([
                 {

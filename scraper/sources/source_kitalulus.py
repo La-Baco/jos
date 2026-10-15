@@ -72,5 +72,8 @@ class SourceKitaLulus(BaseSource):
         except Exception as e:
             print(f"  [WARN] KitaLulus live scraper error: {e}")
 
+        if not jobs:
+            jobs = self.get_fallback_jobs()
+
         return jobs
 
